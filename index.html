@@ -2,107 +2,179 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casio-Inspired Scientific Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TI-Style Scientific Calculator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="calculator">
-        <div class="header">
-            <button id="shiftBtn" class="mode-btn">SHIFT</button>
-            <button id="alphaBtn" class="mode-btn">ALPHA</button>
-            <button id="degRadBtn" class="mode-btn">DEG</button>
-            <button id="modesBtn" class="mode-btn">MODES</button>
-            <span class="title">fx-991CW</span>
-        </div>
-        <input type="text" id="display" readonly placeholder="0">
-        <div class="buttons">
-            <!-- Top row: Catalog/Tools/Function/Variable (simplified as buttons) -->
-            <button onclick="insertFunction('catalog()')">CATALOG</button>
-            <button onclick="insertFunction('tools()')">TOOLS</button>
-            <button onclick="insertFunction('f(x)')">f(x)</button>
-            <button onclick="insertFunction('var')">VAR</button>
-
-            <!-- Second row: Ans, sin/cos/tan with inverses via SHIFT -->
-            <button id="ansBtn" onclick="appendToDisplay('Ans')">Ans</button>
-            <button id="sinBtn" onclick="insertTrig('sin')">sin</button>
-            <button id="cosBtn" onclick="insertTrig('cos')">cos</button>
-            <button id="tanBtn" onclick="insertTrig('tan')">tan</button>
-
-            <!-- Third row: log, ln, √, ∫ (int), d/dx, Σ -->
-            <button onclick="appendToDisplay('log(')">log</button>
-            <button onclick="appendToDisplay('ln(')">ln</button>
-            <button onclick="appendToDisplay('sqrt(')">√</button>
-            <button onclick="appendToDisplay('int(')">∫</button>
-            <button onclick="insertFunction('diff(')">d/dx</button>
-            <button onclick="insertFunction('sum(')">Σ</button>
-
-            <!-- Fourth row: π, e, (, ), M-, M+ -->
-            <button onclick="appendToDisplay('pi')">π</button>
-            <button onclick="appendToDisplay('e')">e</button>
-            <button onclick="appendToDisplay('(')">(</button>
-            <button onclick="appendToDisplay(')')">)</button>
-            <button onclick="memoryOp('-')">M-</button>
-            <button onclick="memoryOp('+')">M+</button>
-
-            <!-- Numbers row 1: 7 8 9 × AC -->
-            <button onclick="appendToDisplay('7')">7</button>
-            <button onclick="appendToDisplay('8')">8</button>
-            <button onclick="appendToDisplay('9')">9</button>
-            <button onclick="appendToDisplay('*')">×</button>
-            <button class="span-2" onclick="clearDisplay()">AC</button>
-
-            <!-- Numbers row 2: 4 5 6 ÷ (Shift for other) -->
-            <button onclick="appendToDisplay('4')">4</button>
-            <button onclick="appendToDisplay('5')">5</button>
-            <button onclick="appendToDisplay('6')">6</button>
-            <button onclick="appendToDisplay('/')">÷</button>
-            <button id="shiftRowBtn" class="span-2" onclick="toggleShift()">[Shift Row]</button>
-
-            <!-- Numbers row 3: 1 2 3 + - -->
-            <button onclick="appendToDisplay('1')">1</button>
-            <button onclick="appendToDisplay('2')">2</button>
-            <button onclick="appendToDisplay('3')">3</button>
-            <button onclick="appendToDisplay('+')">+</button>
-            <button onclick="appendToDisplay('-')">-</button>
-
-            <!-- Bottom row: 0 . x10^x FORMAT EXE ( = ) -->
-            <button class="span-2" onclick="appendToDisplay('0')">0</button>
-            <button onclick="appendToDisplay('.')">.</button>
-            <button onclick="appendToDisplay('**10')">x10^x</button>
-            <button onclick="toggleFormat()">FORMAT</button>
-            <button class="equals" onclick="calculate()">EXE</button>
-
-            <!-- Additional Casio buttons (in extra rows for mobile stacking) -->
-            <button onclick="insertFunction('abs(')">Abs</button>
-            <button onclick="insertFunction('gcd(')">GCD</button>
-            <button onclick="insertFunction('lcm(')">LCM</button>
-            <button onclick="insertFunction('rand(')">Rand</button>
-            <button onclick="memoryOp('rcl')">RCL</button>
-            <button onclick="memoryOp('sto')">STO</button>
-
-            <!-- ALPHA row for A-F variables (shown when ALPHA pressed) -->
-            <div id="alphaRow" class="hidden">
-                <button onclick="appendToDisplay('A')">A</button>
-                <button onclick="appendToDisplay('B')">B</button>
-                <button onclick="appendToDisplay('C')">C</button>
-                <button onclick="appendToDisplay('D')">D</button>
-                <button onclick="appendToDisplay('E')">E</button>
-                <button onclick="appendToDisplay('F')">F</button>
+        <!-- Display: Two lines like TI -->
+        <div class="display">
+            <div id="upperDisplay" class="upper-line">x² + 2x - 3 = 2x + 6</div>
+            <div id="lowerDisplay" class="lower-line">
+                [<span id="solution1">x=-3</span>] [<span id="solution2">x=3</span>]
             </div>
+        </div>
 
-            <!-- Modes modal -->
-            <div id="modesModal" class="modal hidden">
-                <div class="modal-content">
-                    <h3>Select Mode</h3>
-                    <button onclick="setMode('spreadsheet')">Spreadsheet</button>
-                    <button onclick="setMode('table')">Table</button>
-                    <button onclick="setMode('equation')">Equation</button>
-                    <button onclick="setMode('inequality')">Inequality</button>
-                    <button onclick="setMode('complex')">Complex</button>
-                    <button onclick="setMode('baseN')">Base-N</button>
-                    <button onclick="closeModal()">Close</button>
-                </div>
+        <!-- Header Row -->
+        <div class="button-row header-row">
+            <button id="shiftBtn" class="shift-btn yellow">SHIFT</button>
+            <button id="alphaBtn" class="alpha-btn purple">ALPHA</button>
+            <button class="arrow-btn">&larr;</button>
+            <button class="arrow-btn">&rarr;</button>
+            <button id="modeBtn" class="mode-btn">MODE</button>
+            <button id="2ndBtn" class="2nd-btn">2nd</button>
+        </div>
+
+        <!-- Function Row 1: SOLVE, d/dx, etc. -->
+        <div class="button-row">
+            <button class="func-btn" onclick="insertFunc('solve(')">SOLVE</button>
+            <button class="func-btn" onclick="insertFunc('d/dx(')">d/dx</button>
+            <button class="func-btn" onclick="insertFunc('∫(')">∫dx</button>
+            <button class="func-btn" onclick="insertFunc('Δ(')">Δ</button>
+            <button class="func-btn" onclick="insertFunc('∇(')">∇</button>
+            <button class="func-btn" onclick="insertFunc('x⁻¹(')">x⁻¹</button>
+            <button class="func-btn" onclick="insertFunc('Σ(')">Σ</button>
+            <button class="func-btn" onclick="insertFunc('log_b(')">log_b</button>
+        </div>
+
+        <!-- Function Row 2: CALC, mod, etc. -->
+        <div class="button-row">
+            <button class="func-btn" onclick="insertFunc('calc(')">CALC</button>
+            <button class="func-btn" onclick="insertFunc('mod(')">mod</button>
+            <button class="func-btn" onclick="insertFunc('+R(')">+R</button>
+            <button class="func-btn" onclick="insertFunc('³√(')">³√</button>
+            <button class="func-btn" onclick="insertFunc('x³(')">x³</button>
+            <button class="func-btn" onclick="insertFunc('∛(')">∛</button>
+            <button class="func-btn" onclick="insertFunc('10^(')">10^x</button>
+            <button class="func-btn" onclick="insertFunc('e^(')">e^</button>
+        </div>
+
+        <!-- Function Row 3: [ ], √, x², etc. -->
+        <div class="button-row">
+            <button class="func-btn" onclick="appendToDisplay('[')">[ ]</button>
+            <button class="func-btn" onclick="insertFunc('√(')">√</button>
+            <button class="func-btn" onclick="insertFunc('x²(')">x²</button>
+            <button class="func-btn" onclick="insertFunc('x(')">x</button>
+            <button class="func-btn" onclick="insertFunc('log(')">log</button>
+            <button class="func-btn" onclick="insertFunc('ln(')">ln</button>
+        </div>
+
+        <!-- Trig Row: With ALPHA labels (a,b,c for sin, etc.) -->
+        <div class="button-row trig-row">
+            <button class="trig-btn" id="sinBtn" onclick="insertTrig('sin')">sin</button>
+            <button class="trig-btn" id="cosBtn" onclick="insertTrig('cos')">cos</button>
+            <button class="trig-btn" id="tanBtn" onclick="insertTrig('tan')">tan</button>
+            <span class="alpha-labels">a b c</span>
+        </div>
+
+        <!-- Hyp/Other Row -->
+        <div class="button-row">
+            <button class="func-btn" onclick="appendToDisplay('(-')">( - )</button>
+            <button class="func-btn" onclick="insertFunc('0^(')">0^</button>
+            <button class="func-btn" onclick="insertFunc('hyp(')">hyp</button>
+            <button class="func-btn" id="sinInvBtn" onclick="insertTrig('asin')">sin⁻¹</button>
+            <button class="func-btn" id="cosInvBtn" onclick="insertTrig('acos')">cos⁻¹</button>
+            <button class="func-btn" id="tanInvBtn" onclick="insertTrig('atan')">tan⁻¹</button>
+            <span class="alpha-labels">d e f</span>
+        </div>
+
+        <!-- Memory/Paren Row -->
+        <div class="button-row">
+            <button class="mem-btn" onclick="memoryOp('STO')">STO</button>
+            <button class="mem-btn" onclick="memoryOp('RCL')">RCL</button>
+            <button class="mem-btn" onclick="memoryOp('ENG')">ENG</button>
+            <button class="paren-btn" onclick="appendToDisplay('(')">(</button>
+            <button class="paren-btn" onclick="appendToDisplay(')')">)</button>
+            <button class="mem-btn" onclick="memoryOp('M-')">M-</button>
+            <button class="mem-btn" onclick="memoryOp('M+')">M+</button>
+        </div>
+
+        <!-- Advanced Row: CONST, CONV, LIMIT, ∞ -->
+        <div class="button-row">
+            <button class="adv-btn" onclick="insertFunc('const(')">CONST</button>
+            <button class="adv-btn" onclick="insertFunc('conv(')">CONV</button>
+            <button class="adv-btn" onclick="insertFunc('limit(')">LIMIT</button>
+            <button class="adv-btn" onclick="appendToDisplay('∞')">∞</button>
+        </div>
+
+        <!-- Numbers Row 1: 7 8 9 DEL AC -->
+        <div class="button-row num-row">
+            <button class="num-btn" onclick="appendToDisplay('7')">7</button>
+            <button class="num-btn" onclick="appendToDisplay('8')">8</button>
+            <button class="num-btn" onclick="appendToDisplay('9')">9</button>
+            <button class="del-btn orange" onclick="del()">DEL</button>
+            <button class="ac-btn orange" onclick="clearAll()">AC</button>
+        </div>
+
+        <!-- Advanced Num Row: MATRIX VECTOR HELP etc. -->
+        <div class="button-row adv-num">
+            <button class="adv-btn yellow" onclick="setMode('matrix')">MATRIX</button>
+            <button class="adv-btn yellow" onclick="setMode('vector')">VECTOR</button>
+            <button class="adv-btn" onclick="insertFunc('help(')">HELP</button>
+            <button class="func-btn" onclick="insertFunc('gcd(')">GCD</button>
+            <button class="func-btn" onclick="insertFunc('nCr(')">nCr</button>
+            <button class="func-btn" onclick="insertFunc('lcm(')">LCM</button>
+        </div>
+
+        <!-- Numbers Row 2: 4 5 6 × ÷ -->
+        <div class="button-row num-row">
+            <button class="num-btn" onclick="appendToDisplay('4')">4</button>
+            <button class="num-btn" onclick="appendToDisplay('5')">5</button>
+            <button class="num-btn" onclick="appendToDisplay('6')">6</button>
+            <button class="op-btn green" onclick="appendToDisplay('*')">×</button>
+            <button class="op-btn green" onclick="appendToDisplay('/')">÷</button>
+        </div>
+
+        <!-- Advanced Num 2: STAT CMPLX DIST etc. -->
+        <div class="button-row adv-num">
+            <button class="adv-btn" onclick="setMode('stat')">STAT</button>
+            <button class="adv-btn" onclick="setMode('cmplx')">CMPLX</button>
+            <button class="adv-btn" onclick="insertFunc('dist(')">DIST</button>
+            <button class="func-btn" onclick="insertFunc('P(')">P</button>
+            <button class="func-btn" onclick="insertFunc('cell(')">cell</button>
+            <button class="func-btn" onclick="insertFunc('rec(')">Rec</button>
+            <button class="func-btn" onclick="insertFunc('floor(')">floor</button>
+        </div>
+
+        <!-- Numbers Row 3: 1 2 3 + - -->
+        <div class="button-row num-row">
+            <button class="num-btn" onclick="appendToDisplay('1')">1</button>
+            <button class="num-btn" onclick="appendToDisplay('2')">2</button>
+            <button class="num-btn" onclick="appendToDisplay('3')">3</button>
+            <button class="op-btn green" onclick="appendToDisplay('+')">+</button>
+            <button class="op-btn green" onclick="appendToDisplay('-')">-</button>
+        </div>
+
+        <!-- Advanced Num 3: COPY PASTE Ran# etc. -->
+        <div class="button-row adv-num">
+            <button class="adv-btn" onclick="copy()">COPY</button>
+            <button class="adv-btn" onclick="paste()">PASTE</button>
+            <button class="func-btn" onclick="insertFunc('Ran#(')">Ran#</button>
+            <button class="func-btn" onclick="insertFunc('RanInt(')">RanInt</button>
+            <button class="const-btn" onclick="appendToDisplay('π')">π</button>
+            <button class="const-btn" onclick="appendToDisplay('e')">e</button>
+            <button class="func-btn" onclick="insertFunc('preAns(')">preAns</button>
+            <button class="hist-btn yellow" onclick="showHistory()">History</button>
+        </div>
+
+        <!-- Bottom Row: 0 . EXP Ans = -->
+        <div class="button-row bottom-row">
+            <button class="num-btn wide" onclick="appendToDisplay('0')">0</button>
+            <button class="num-btn" onclick="appendToDisplay('.')">.</button>
+            <button class="func-btn" onclick="insertFunc('exp(')">EXP</button>
+            <button class="ans-btn" onclick="appendAns()">Ans</button>
+            <button class="equals-btn" onclick="calculate()">=</button>
+        </div>
+
+        <!-- Modes Modal -->
+        <div id="modesModal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Select Mode</h3>
+                <button onclick="setMode('comp')">COMP</button>
+                <button onclick="setMode('stat')">STAT</button>
+                <button onclick="setMode('table')">TABLE</button>
+                <button onclick="closeModal()">Close</button>
             </div>
         </div>
     </div>
