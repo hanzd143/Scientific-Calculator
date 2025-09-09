@@ -3,51 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scientific Calculator</title>
+    <title>Casio-Inspired Scientific Calculator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="calculator">
-        <input type="text" id="display" readonly>
+        <div class="header">
+            <button id="shiftBtn" class="mode-btn">SHIFT</button>
+            <button id="alphaBtn" class="mode-btn">ALPHA</button>
+            <button id="degRadBtn" class="mode-btn">DEG</button>
+            <button id="modesBtn" class="mode-btn">MODES</button>
+            <span class="title">fx-991CW</span>
+        </div>
+        <input type="text" id="display" readonly placeholder="0">
         <div class="buttons">
-            <!-- Row 1: Scientific functions -->
-            <button onclick="appendToDisplay('sin(')">sin</button>
-            <button onclick="appendToDisplay('cos(')">cos</button>
-            <button onclick="appendToDisplay('tan(')">tan</button>
+            <!-- Top row: Catalog/Tools/Function/Variable (simplified as buttons) -->
+            <button onclick="insertFunction('catalog()')">CATALOG</button>
+            <button onclick="insertFunction('tools()')">TOOLS</button>
+            <button onclick="insertFunction('f(x)')">f(x)</button>
+            <button onclick="insertFunction('var')">VAR</button>
+
+            <!-- Second row: Ans, sin/cos/tan with inverses via SHIFT -->
+            <button id="ansBtn" onclick="appendToDisplay('Ans')">Ans</button>
+            <button id="sinBtn" onclick="insertTrig('sin')">sin</button>
+            <button id="cosBtn" onclick="insertTrig('cos')">cos</button>
+            <button id="tanBtn" onclick="insertTrig('tan')">tan</button>
+
+            <!-- Third row: log, ln, √, ∫ (int), d/dx, Σ -->
             <button onclick="appendToDisplay('log(')">log</button>
-            
-            <!-- Row 2: More functions -->
+            <button onclick="appendToDisplay('ln(')">ln</button>
             <button onclick="appendToDisplay('sqrt(')">√</button>
-            <button onclick="appendToDisplay('exp(')">exp</button>
-            <button onclick="appendToDisplay('^')">^</button>
+            <button onclick="appendToDisplay('int(')">∫</button>
+            <button onclick="insertFunction('diff(')">d/dx</button>
+            <button onclick="insertFunction('sum(')">Σ</button>
+
+            <!-- Fourth row: π, e, (, ), M-, M+ -->
             <button onclick="appendToDisplay('pi')">π</button>
-            
-            <!-- Row 3: Numbers and operators -->
+            <button onclick="appendToDisplay('e')">e</button>
+            <button onclick="appendToDisplay('(')">(</button>
+            <button onclick="appendToDisplay(')')">)</button>
+            <button onclick="memoryOp('-')">M-</button>
+            <button onclick="memoryOp('+')">M+</button>
+
+            <!-- Numbers row 1: 7 8 9 × AC -->
             <button onclick="appendToDisplay('7')">7</button>
             <button onclick="appendToDisplay('8')">8</button>
             <button onclick="appendToDisplay('9')">9</button>
-            <button onclick="appendToDisplay('/')">/</button>
-            
+            <button onclick="appendToDisplay('*')">×</button>
+            <button class="span-2" onclick="clearDisplay()">AC</button>
+
+            <!-- Numbers row 2: 4 5 6 ÷ (Shift for other) -->
             <button onclick="appendToDisplay('4')">4</button>
             <button onclick="appendToDisplay('5')">5</button>
             <button onclick="appendToDisplay('6')">6</button>
-            <button onclick="appendToDisplay('*')">*</button>
-            
+            <button onclick="appendToDisplay('/')">÷</button>
+            <button id="shiftRowBtn" class="span-2" onclick="toggleShift()">[Shift Row]</button>
+
+            <!-- Numbers row 3: 1 2 3 + - -->
             <button onclick="appendToDisplay('1')">1</button>
             <button onclick="appendToDisplay('2')">2</button>
             <button onclick="appendToDisplay('3')">3</button>
-            <button onclick="appendToDisplay('-')">-</button>
-            
-            <button onclick="appendToDisplay('0')">0</button>
-            <button onclick="appendToDisplay('.')">.</button>
-            <button onclick="appendToDisplay('(')">(</button>
-            <button onclick="appendToDisplay(')')">)</button>
-            
-            <!-- Row 4: Actions -->
-            <button onclick="clearDisplay()">C</button>
-            <button onclick="backspace()">←</button>
             <button onclick="appendToDisplay('+')">+</button>
-            <button onclick="calculate()">=</button>
+            <button onclick="appendToDisplay('-')">-</button>
+
+            <!-- Bottom row: 0 . x10^x FORMAT EXE ( = ) -->
+            <button class="span-2" onclick="appendToDisplay('0')">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+            <button onclick="appendToDisplay('**10')">x10^x</button>
+            <button onclick="toggleFormat()">FORMAT</button>
+            <button class="equals" onclick="calculate()">EXE</button>
+
+            <!-- Additional Casio buttons (in extra rows for mobile stacking) -->
+            <button onclick="insertFunction('abs(')">Abs</button>
+            <button onclick="insertFunction('gcd(')">GCD</button>
+            <button onclick="insertFunction('lcm(')">LCM</button>
+            <button onclick="insertFunction('rand(')">Rand</button>
+            <button onclick="memoryOp('rcl')">RCL</button>
+            <button onclick="memoryOp('sto')">STO</button>
+
+            <!-- ALPHA row for A-F variables (shown when ALPHA pressed) -->
+            <div id="alphaRow" class="hidden">
+                <button onclick="appendToDisplay('A')">A</button>
+                <button onclick="appendToDisplay('B')">B</button>
+                <button onclick="appendToDisplay('C')">C</button>
+                <button onclick="appendToDisplay('D')">D</button>
+                <button onclick="appendToDisplay('E')">E</button>
+                <button onclick="appendToDisplay('F')">F</button>
+            </div>
+
+            <!-- Modes modal -->
+            <div id="modesModal" class="modal hidden">
+                <div class="modal-content">
+                    <h3>Select Mode</h3>
+                    <button onclick="setMode('spreadsheet')">Spreadsheet</button>
+                    <button onclick="setMode('table')">Table</button>
+                    <button onclick="setMode('equation')">Equation</button>
+                    <button onclick="setMode('inequality')">Inequality</button>
+                    <button onclick="setMode('complex')">Complex</button>
+                    <button onclick="setMode('baseN')">Base-N</button>
+                    <button onclick="closeModal()">Close</button>
+                </div>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>
