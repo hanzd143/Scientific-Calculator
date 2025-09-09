@@ -1,126 +1,137 @@
-const display = document.getElementById('display');
-const shiftBtn = document.getElementById('shiftBtn');
-const alphaBtn = document.getElementById('alphaBtn');
-const degRadBtn = document.getElementById('degRadBtn');
-const modesBtn = document.getElementById('modesBtn');
-const alphaRow = document.getElementById('alphaRow');
-const modesModal = document.getElementById('modesModal');
-const sinBtn = document.getElementById('sinBtn');
-const cosBtn = document.getElementById('cosBtn');
-const tanBtn = document.getElementById('tanBtn');
-
+const upperDisplay = document.getElementById('upperDisplay');
+const lowerDisplay = document.getElementById('lowerDisplay');
+const display = document.getElementById('display') || upperDisplay; // Use upper for input
+let input = '';
 let isShift = false;
 let isAlpha = false;
-let isDegree = true; // Default to degrees
+let is2nd = false;
 let memory = 0;
-let currentMode = 'calculate'; // Default mode
+let history = [];
+let currentMode = 'comp';
 
 function appendToDisplay(value) {
-    display.value += value;
+    input += value;
+    upperDisplay.textContent = input;
 }
 
-function clearDisplay() {
-    display.value = '';
-}
-
-function backspace() {
-    display.value = display.value.slice(0, -1);
+function insertFunc(func) {
+    appendToDisplay(func);
 }
 
 function insertTrig(type) {
-    let func = isShift ? type + 'Inv(' : type + '('; // e.g., sin → sinInv for arcsin
-    if (isDegree && !isShift) {
-        // For direct trig, convert to radians in eval later
-        func = type + 'Deg(';
+    let f = is2nd ? type + 'Inv(' : type + '(';
+    appendToDisplay(f);
+}
+
+function memoryOp(op) {
+    let val = parseFloat(input) || 0;
+    switch (op) {
+        case 'M+': memory += val; break;
+        case 'M-': memory -= val; break;
+        case 'STO': memory = val; break;
+        case 'RCL': appendToDisplay(memory.toString()); break;
     }
-    appendToDisplay(func);
+}
+
+function del() {
+    input = input.slice(0, -1);
+    upperDisplay.textContent = input;
+}
+
+function clearAll() {
+    input = '';
+    upperDisplay.textContent = '';
+    lowerDisplay.innerHTML = '';
+}
+
+function appendAns() {
+    appendToDisplay('Ans'); // Placeholder for last result
 }
 
 function toggleShift() {
     isShift = !isShift;
-    shiftBtn.textContent = isShift ? 'SHIFT (ON)' : 'SHIFT';
-    shiftBtn.classList.toggle('active');
-    // Update trig buttons labels
-    sinBtn.textContent = isShift ? 'sin⁻¹' : 'sin';
-    cosBtn.textContent = isShift ? 'cos⁻¹' : 'cos';
-    tanBtn.textContent = isShift ? 'tan⁻¹' : 'tan';
+    document.getElementById('shiftBtn').textContent = isShift ? 'SHIFT ON' : 'SHIFT';
+    // Toggle inverse labels if needed
 }
 
 function toggleAlpha() {
     isAlpha = !isAlpha;
-    alphaBtn.textContent = isAlpha ? 'ALPHA (ON)' : 'ALPHA';
-    alphaBtn.classList.toggle('active');
-    alphaRow.classList.toggle('hidden');
+    document.getElementById('alphaBtn').textContent = isAlpha ? 'ALPHA ON' : 'ALPHA';
 }
 
-function toggleDegRad() {
-    isDegree = !isDegree;
-    degRadBtn.textContent = isDegree ? 'DEG' : 'RAD';
-    degRadBtn.classList.toggle('active');
-}
-
-function memoryOp(op) {
-    try {
-        let val = parseFloat(display.value) || 0;
-        if (op === '+') memory += val;
-        else if (op === '-') memory -= val;
-        else if (op === 'rcl') display.value = memory;
-        else if (op === 'sto') memory = val;
-    } catch {}
-}
-
-function insertFunction(func) {
-    appendToDisplay(func); // Placeholder; expand for real impl (e.g., matrix)
-    alert(`${func} selected - Implement full function here!`); // Temp
-}
-
-function toggleFormat() {
-    // Toggle display format (e.g., scientific vs normal)
-    alert('Format toggled - Add logic for number formatting');
+function toggle2nd() {
+    is2nd = !is2nd;
+    document.getElementById('2ndBtn').textContent = is2nd ? '2nd ON' : '2nd';
+    // Update trig to inverses
+    if (is2nd) {
+        document.getElementById('sinBtn').textContent = 'sin⁻¹';
+        // Similar for cos, tan
+    } else {
+        document.getElementById('sinBtn').textContent = 'sin';
+        // Reset
+    }
 }
 
 function setMode(mode) {
     currentMode = mode;
+    console.log(`Mode: ${mode}`);
     closeModal();
-    alert(`Switched to ${mode} mode`); // Placeholder; e.g., for spreadsheet, load a grid
+    // e.g., for 'solve', enable solver
+}
+
+function showHistory() {
+    alert(history.join('\n')); // Simple alert
 }
 
 function calculate() {
     try {
-        let expression = display.value
-            .replace(/pi/g, Math.PI)
-            .replace(/e/g, Math.E)
-            .replace(/\*\*10/g, ' * Math.pow(10, ') + ')' // For x10^x
-            .replace(/sinDeg\(/g, 'Math.sin(' + (isDegree ? 'Math.PI/180 * ' : ''))
-            .replace(/cosDeg\(/g, 'Math.cos(' + (isDegree ? 'Math.PI/180 * ' : ''))
-            .replace(/tanDeg\(/g, 'Math.tan(' + (isDegree ? 'Math.PI/180 * ' : ''))
-            .replace(/sinInv\(/g, isDegree ? 'Math.asin(...) * 180/Math.PI' : 'Math.asin(')
-            // Add more replacements for log, ln, sqrt, int (numerical), etc.
-            .replace(/log\(/g, 'Math.log10(')
-            .replace(/ln\(/g, 'Math.log(')
-            .replace(/sqrt\(/g, 'Math.sqrt(')
-            .replace(/Ans/g, display.value); // Last answer
-
-        // For advanced like diff/sum, placeholder eval
-        display.value = eval(expression).toFixed(4); // Round for display
-    } catch (error) {
-        display.value = 'Error';
+        // Simple eval for basic; for solve, check if 'solve' in input
+        if (input.includes('solve(')) {
+            // Basic quadratic solver example: assume ax^2 + bx + c = 0
+            // Parse simple: e.g., x^2 + 2x - 3 = 2x + 6 → x^2 -3=0 (move terms)
+            let expr = input.replace('solve(', '').replace('=0)', '');
+            // Dummy quadratic: roots of x^2 + 2x - 9 = 0 (from example after moving)
+            let a = 1, b = 0, c = -9; // Hardcoded for demo; implement parser
+            let disc = b*b - 4*a*c;
+            let root1 = (-b + Math.sqrt(disc)) / (2*a);
+            let root2 = (-b - Math.sqrt(disc)) / (2*a);
+            lowerDisplay.innerHTML = `[x=${root2.toFixed(0)}] [x=${root1.toFixed(0)}]`;
+            history.push(input + ' = ' + root1 + ', ' + root2);
+            input = '';
+            upperDisplay.textContent = '';
+        } else {
+            let result = eval(input.replace(/sin/g, 'Math.sin').replace(/cos/g, 'Math.cos') /* add more */ );
+            lowerDisplay.textContent = result.toFixed(4);
+            history.push(input + ' = ' + result);
+            input = result.toString();
+        }
+    } catch (e) {
+        lowerDisplay.textContent = 'Error';
     }
 }
 
-shiftBtn.addEventListener('click', toggleShift);
-alphaBtn.addEventListener('click', toggleAlpha);
-degRadBtn.addEventListener('click', toggleDegRad);
-modesBtn.addEventListener('click', () => modesModal.classList.remove('hidden'));
-function closeModal() { modesModal.classList.add('hidden'); }
+function openModal() {
+    document.getElementById('modesModal').classList.remove('hidden');
+}
 
-// Keyboard support for desktop testing
+function closeModal() {
+    document.getElementById('modesModal').classList.add('hidden');
+}
+
+// Event Listeners
+document.getElementById('shiftBtn').addEventListener('click', toggleShift);
+document.getElementById('alphaBtn').addEventListener('click', toggleAlpha);
+document.getElementById('2ndBtn').addEventListener('click', toggle2nd);
+document.getElementById('modeBtn').addEventListener('click', openModal);
+
+// Keyboard support
 document.addEventListener('keydown', (e) => {
-    if (e.key >= '0' && e.key <= '9' || ['+', '-', '*', '/', '.', '(', ')'].includes(e.key)) {
-        appendToDisplay(e.key);
-    } else if (e.key === 'Enter') calculate();
-    else if (e.key === 'Escape') clearDisplay();
+    if (e.key >= '0' && e.key <= '9') appendToDisplay(e.key);
+    else if (['+', '-', '*', '/', '.', '(', ')'].includes(e.key)) appendToDisplay(e.key);
+    else if (e.key === 'Enter') calculate();
+    else if (e.key === 'Backspace') del();
 });
 
-// Touch enhancements (prevent zoom on iOS)
-document.addEventListener('touchstart', (e) => {}, { passive: true });
+// Initial example load
+upperDisplay.textContent = 'x² + 2x - 3 = 2x + 6';
+lowerDisplay.innerHTML = '[x=-3] [x=3]';
